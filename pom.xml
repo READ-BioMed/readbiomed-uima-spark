@@ -137,6 +137,14 @@
         </dependency>
 
     </dependencies>
+         
+         <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub package publish</name>
+      <url>https://maven.pkg.github.com/READ-BioMed/readbiomed-uima-spark</url>
+    </repository>
+  </distributionManagement>
 
     
 </project>
