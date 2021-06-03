@@ -28,9 +28,15 @@ import java.util.*;
 public class UIMAModel extends Transformer {
 
     private Map<String,Class> outColTypeClazzMap;
+    private String textCol;
+
 
     public void setTypes(Map<String, Class> types) {
         this.outColTypeClazzMap = types;
+    }
+
+    public void setTextCol(String textCol){
+        this.textCol = textCol;
     }
 
     @Override
@@ -42,9 +48,9 @@ public class UIMAModel extends Transformer {
     public Dataset<Row> transform(Dataset<?> dataset) {
             Dataset<Row> rowDataset = (Dataset<Row>) dataset;
             rowDataset = rowDataset.map((MapFunction<Row, Row>) row -> {
-                AggregateBuilder aggregateBuilder = new AggregateBuilder();
-                final AnalysisEngine analysisEngine = aggregateBuilder.createAggregate();
-                String textValue = row.<String>getAs("text").toString();
+                final AnalysisEngine analysisEngine = buildAnalysisEngine();
+                String textValue = row.<String>getAs(textCol).toString();
+
                 final JCas jCas = JCasFactory.createText(textValue);
                 analysisEngine.process(jCas);
 
@@ -68,6 +74,12 @@ public class UIMAModel extends Transformer {
             }, Encoders.kryo(Row.class));
             return rowDataset;
         }
+
+    protected AnalysisEngine buildAnalysisEngine() throws Exception {
+        AggregateBuilder aggregateBuilder = new AggregateBuilder();
+        final AnalysisEngine analysisEngine = aggregateBuilder.createAggregate();
+        return analysisEngine;
+    }
 
     @Override
     public Transformer copy(ParamMap extra) {
