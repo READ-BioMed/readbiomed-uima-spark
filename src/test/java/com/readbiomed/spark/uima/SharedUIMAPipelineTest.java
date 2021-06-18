@@ -1,33 +1,21 @@
 package com.readbiomed.spark.uima;
 
 import com.google.common.collect.Lists;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.ForeachFunction;
 import org.apache.spark.sql.*;
-import org.apache.spark.sql.types.ArrayType;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructType;
-import org.apache.spark.sql.types.UDTRegistration;
-import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
-import org.apache.uima.cas.CAS;
-import org.apache.uima.fit.factory.AggregateBuilder;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.resource.ResourceInitializationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import scala.collection.JavaConverters;
-import scala.collection.mutable.WrappedArray;
 import scala.reflect.ClassTag;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UIMAModelTest {
+class SharedUIMAPipelineTest {
 
     private SparkSession sparkSession;
     @BeforeEach
@@ -55,7 +43,8 @@ class UIMAModelTest {
         Map<String,Class> classMap = new HashMap<>();
         String[] annotationList = {"duplicate_text"};
         classMap.put(annotationList[0],org.apache.uima.jcas.tcas.DocumentAnnotation.class);
-        UIMAModel uimaModel = UIMAModel.getInstance(classMap, new AnalysisEngineDescription[0],"text" );
+        UIMAPipeline uimaModel = SharedUIMAPipeline.getNewInstance(classMap, new AnalysisEngineDescription[0],"text" );
+
 
 
         // Prepare test documents, which are unlabeled.

@@ -32,30 +32,37 @@ import org.apache.uima.resource.ResourceInitializationException;
 
 import java.util.*;
 
-public class UIMAModel extends Transformer {
+/**
+ * The base UIMAPipeline implementation that does the work of transforming a dataset using a UIMA Pipeline.
+ *
+ * The pipeline works by running a completed UIMA pipeline as represented by an AnalysisEngine.
+ *
+ * The pipeline expects a single text column, <b>textCol</b>, as input and outputs the results of the pipeline as a ArrayType of a string type.
+ *
+ * You can outputs more than a Uima Type as a column through the <b>outColTypeClazzMap</b> map.
+ *
+ * One major issue with running UIMA pipeline in spark is that the analysis engines are not serializable.
+ * To overcome this problem, we delay the process of supplying the AnalysisEngine to run time, through the @getAnalysisEngine abstract method.
+ *
+ * Both implementations 
+ *
+ */
+public abstract class UIMAPipeline extends Transformer {
 
     private Map<String, Class> outColTypeClazzMap;
     private String textCol;
 
-    private static AnalysisEngine analysisEngine;
+    protected UIMAPipeline(){
 
-    private static UIMAModel uimaModel = null;
+    };
 
-    private UIMAModel (){
+    /**
+     * Return the
+     * @return
+     */
+    public abstract AnalysisEngine getAnalysisEngine();
 
-    }
 
-    public static UIMAModel getInstance (Map<String, Class> types, AnalysisEngineDescription[] analysisEngineDescriptions, String textCol) throws Exception {
-        if (uimaModel ==null){
-            uimaModel = new UIMAModel();
-            uimaModel.setTypes(types);
-            uimaModel.setTextCol(textCol);
-            analysisEngine = getNewAnalysisEngine(analysisEngineDescriptions);
-
-        }
-
-        return uimaModel;
-    }
 
     public void setTypes(Map<String, Class> types) {
         this.outColTypeClazzMap = types;
@@ -105,7 +112,7 @@ public class UIMAModel extends Transformer {
         String textValue = row.<String>getAs(textCol).toString();
         final JCas jCas = JCasFactory.createText(textValue);;
         try {
-            analysisEngine.process(jCas);
+            getAnalysisEngine().process(jCas);
         }catch (Exception e){
             System.out.println("Failed to process " + textValue);
         }
@@ -128,20 +135,7 @@ public class UIMAModel extends Transformer {
 
 
 
-    public  static AnalysisEngine getNewAnalysisEngine(AnalysisEngineDescription[] analysisEngineDescriptions) throws Exception{
 
-        if (analysisEngine == null){
-            AggregateBuilder aggregateBuilder = new AggregateBuilder();
-
-            for (AnalysisEngineDescription analysisEngineDescription : analysisEngineDescriptions){
-                aggregateBuilder.add(analysisEngineDescription);
-            }
-            analysisEngine = aggregateBuilder.createAggregate();
-        }
-
-        return analysisEngine;
-
-    }
 
 
     @Override
