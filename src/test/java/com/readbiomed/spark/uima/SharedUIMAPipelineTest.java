@@ -1,30 +1,21 @@
 package com.readbiomed.spark.uima;
 
 import com.google.common.collect.Lists;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.ForeachFunction;
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructType;
-import org.apache.spark.sql.types.UDTRegistration;
-import org.apache.uima.analysis_engine.AnalysisEngine;
-import org.apache.uima.cas.CAS;
-import org.apache.uima.fit.factory.AggregateBuilder;
-import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.factory.JCasFactory;
-import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import scala.collection.mutable.WrappedArray;
+import scala.collection.JavaConverters;
 import scala.reflect.ClassTag;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UIMAModelTest {
+class SharedUIMAPipelineTest {
 
     private SparkSession sparkSession;
     @BeforeEach
@@ -48,20 +39,13 @@ class UIMAModelTest {
     }
 
     @Test
-    void transform() throws ResourceInitializationException {
-
-
-
-
-
-//        sparkSession.sparkContext().broadcast(analysisEngine,classTag(AnalysisEngine.class));
-
-        UIMAModel uimaModel = new UIMAModel();
-
+    void transform() throws Exception {
         Map<String,Class> classMap = new HashMap<>();
         String[] annotationList = {"duplicate_text"};
         classMap.put(annotationList[0],org.apache.uima.jcas.tcas.DocumentAnnotation.class);
-        uimaModel.setTypes(classMap);
+        UIMAPipeline uimaModel = SharedUIMAPipeline.getNewInstance(classMap, new AnalysisEngineDescription[0],"text" );
+
+
 
         // Prepare test documents, which are unlabeled.
         Dataset<Row> data = buildTestDocuments();
@@ -72,8 +56,8 @@ class UIMAModelTest {
         while (iterator.hasNext()){
             Row row = iterator.next();
             String text = row.<String>getAs("text");
-            String[] duplicate_text = (String[])row.getAs(annotationList[0]);
-            assertEquals(text,duplicate_text[0]);
+            ;
+            assertEquals(text,JavaConverters.asJavaIterable(row.getAs(annotationList[0])).iterator().next());
         }
 
 
