@@ -19,7 +19,7 @@
                     <id>github</id>
                     <url>https://maven.pkg.github.com/READ-BioMed/readbiomed-uima-spark</url>
                     <snapshots>
-                        <enabled>false</enabled>
+                        <enabled>true</enabled>
                     </snapshots>
                 </repository>
             </repositories>
