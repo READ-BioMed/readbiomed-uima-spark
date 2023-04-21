@@ -35,7 +35,7 @@
         <uima.version>2.10.2</uima.version>
         <uimafit.version>2.4.0</uimafit.version>
         <scala.version>2.12</scala.version>
-        <spark.version>3.0.0</spark.version>
+        <spark.version>3.4.0</spark.version>
 <!--        <readiobiomed.version>0.1.0-SNAPSHOT</readiobiomed.version>-->
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
     </properties>
